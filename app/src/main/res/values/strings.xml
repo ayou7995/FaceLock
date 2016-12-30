@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">FaceLock</string>
+    <string name="register_profile">register profile</string>
+    <string name="update_profile">update profile</string>
+    <string name="rephoto">rephoto</string>
+    <string name="register">register</string>
+    <string name="update">update</string>
+    <string name="confirm">confirm</string>
+    <string name="password">Password</string>
+    <string name="name">Name</string>
+    <string name="app_icon">App_Icon</string>
+    <string name="snap">snap</string>
+    <string name="password_verify">Password Verify</string>
+    <string name="back">back</string>
 </resources>
