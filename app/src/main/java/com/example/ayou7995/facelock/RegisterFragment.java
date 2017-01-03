@@ -44,13 +44,7 @@ public class RegisterFragment extends Fragment {
     private EditText name_et;
     private EditText pass_et;
     private ImageView face_img;
-    private String name = "";
-    private String passwd = "";
 
-    // TODO: add deviceID
-    private String deviceID = "";
-    // TODO: assert img is not null
-    private File img = null;
 
 
     @Override
@@ -104,20 +98,6 @@ public class RegisterFragment extends Fragment {
 //                    .commit();
 //        }
 //    }
-    private JSONObject createInfoJSON() {
-        JSONObject sendInfo = new JSONObject();
-        try {
-            sendInfo.put("status", "register");
-            sendInfo.put("ID", deviceID);
-            sendInfo.put("face", img);
-            sendInfo.put("name", name);
-            sendInfo.put("passwd", passwd);
-        } catch (JSONException e) {
-            System.out.println("JSONException\n");
-        }
-
-        return sendInfo;
-}
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
@@ -151,11 +131,14 @@ public class RegisterFragment extends Fragment {
         }).start();
 
         /** send register info to server **/
-        name = name_et.getText().toString();
-        passwd = pass_et.getText().toString();
+        String name = name_et.getText().toString();
+        String password = pass_et.getText().toString();
 
+
+        ((MainActivity) getActivity()).setUser(name);
+        ((MainActivity) getActivity()).setPass(password);
         registerSender sender = new registerSender();
-        sender.execute(createInfoJSON());
+        sender.execute(((MainActivity) getActivity()).createInfoJSON());
     }
 
     private void showFace(File f) {
@@ -203,7 +186,6 @@ public class RegisterFragment extends Fragment {
     private void displayInformation() {
 
         File pictureFile = ((MainActivity) getActivity()).getFile();
-        img = ((MainActivity) getActivity()).getFile();
 
         Bitmap bitmap = null;
         if(pictureFile.exists()){

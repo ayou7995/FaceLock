@@ -50,14 +50,16 @@ public class MainActivity extends FragmentActivity {
 
     // State Control
     private String currentActionState = "";
-    public static String IDLESTATE = "Idle";
-    public static String REGISTERSTATE = "Register";
-    public static String VERIFYSTATE = "Verify";
-    public static String UPDATESTATE = "Update";
+    public static String IDLESTATE = "idle";
+    public static String CHECKEXIST = "exist";
+    public static String REGISTERSTATE = "register";
+    public static String VERIFYSTATE = "verify";
+    public static String UPDATESTATE = "update";
 
     // User Detail
     private String currentUser = "";
     private String currentPass = "";
+    // TODO: add currentDeviceID
     private String currentDeviceID = "";
     private File currentFile = null;
     private BootBroadcastReceiver bootBroadcastReceiver;
@@ -85,9 +87,9 @@ public class MainActivity extends FragmentActivity {
 
         // Todo
         // Check if any profile exists
-
+        currentActionState = CHECKEXIST;
         checkExistence sender = new checkExistence ();
-        sender.execute(createInfoJSON());
+        sender.execute();
 
         if (profileExists) {
             currentFragment = PHOTOFRAG;
@@ -112,20 +114,7 @@ public class MainActivity extends FragmentActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    private JSONObject createInfoJSON() {
-        JSONObject sendInfo = new JSONObject();
-        try {
-            sendInfo.put("status", "exist");
-            sendInfo.put("ID", currentDeviceID);
-            sendInfo.put("face", "");
-            sendInfo.put("name", "");
-            sendInfo.put("passwd", "");
-        } catch (JSONException e) {
-            System.out.println("Null deviceID\n");
-        }
 
-        return sendInfo;
-    }
 
     @Override
     protected void onResume() {
@@ -184,12 +173,31 @@ public class MainActivity extends FragmentActivity {
         currentPass = pass;
     }
 
+    public String getCurrentDeviceID() { return currentDeviceID; }
+
+    public  void setCurrentDeviceID(String deviceID) { currentDeviceID = deviceID; }
+
     public File getFile() {
         return currentFile;
     }
 
     public void setFile(File file) {
         currentFile = file;
+    }
+
+    public JSONObject createInfoJSON() {
+        JSONObject sendInfo = new JSONObject();
+        try {
+            sendInfo.put("status", currentActionState);
+            sendInfo.put("ID", currentDeviceID);
+            sendInfo.put("face", currentFile);
+            sendInfo.put("name", currentUser);
+            sendInfo.put("passwd", currentPass);
+        } catch (JSONException e) {
+            System.out.println("CREATE JSON FAIL");
+        }
+
+        return sendInfo;
     }
 
     /**
