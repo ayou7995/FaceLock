@@ -280,8 +280,13 @@ public class RegisterFragment extends Fragment {
                 System.out.println("unable to catch response\n");
             }
             if (!success) {
-                Toast.makeText(getActivity(),
-                        "You have already registered.", Toast.LENGTH_SHORT).show();
+                if (((MainActivity) getActivity()).getActionState().equals(MainActivity.REGISTERSTATE)) {
+                    Toast.makeText(getActivity(),
+                            "You have already registered.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(),
+                            "Update failed.", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
