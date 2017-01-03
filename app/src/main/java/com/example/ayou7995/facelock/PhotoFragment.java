@@ -2,11 +2,14 @@ package com.example.ayou7995.facelock;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -57,7 +61,6 @@ public class PhotoFragment extends Fragment {
 
 
 
-
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -89,6 +92,7 @@ public class PhotoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 releaseCameraAndPreview();
+                ((MainActivity) getActivity()).setActionState(MainActivity.PASSWORDSTATE);
                 ((MainActivity)getActivity()).setCurrentFragment(MainActivity.PASSVERFRAG);
                 ((MainActivity)getActivity()).replaceFragments(PasswordVerificationFragment.class);
             }
@@ -112,6 +116,9 @@ public class PhotoFragment extends Fragment {
                         fos.close();
                         // Only save taken face image.
                         ((MainActivity)getActivity()).setFile(pictureFile);
+
+                        ((MainActivity)getActivity()).setBinaryData(encodeImage(pictureFile));
+
                         if( ((MainActivity)getActivity()).getActionState().equals(MainActivity.REGISTERSTATE) ||
                             ((MainActivity)getActivity()).getActionState().equals(MainActivity.UPDATESTATE)) {
                             // Switch to Register Fragment
@@ -155,6 +162,16 @@ public class PhotoFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
     }
 
+    private String encodeImage(File pictureFile) {
+
+        Bitmap bm = BitmapFactory.decodeFile(pictureFile.toString());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] b = baos.toByteArray();
+        //Base64.de
+        return Base64.encodeToString(b, Base64.DEFAULT);
+    }
+
     private void verifyFace() {
 
         // Todo
@@ -182,7 +199,7 @@ public class PhotoFragment extends Fragment {
         verifySender sender = new verifySender();
         sender.execute(((MainActivity) getActivity()).createInfoJSON());
 
-        if(valid.equals("success")) {
+        /*if(valid.equals("success")) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                     "IMG_" + faceImgName + ".jpg");
             ((MainActivity) getActivity()).setUser("ayou7995");
@@ -197,7 +214,7 @@ public class PhotoFragment extends Fragment {
         }
         else if (valid.equals("fail")){
             Toast.makeText(getActivity(), "Not yet register ?",Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 
     @Override
@@ -336,17 +353,29 @@ public class PhotoFragment extends Fragment {
             try {
 
                 returnInformation = new JSONObject(result);
-                valid = (String) returnInformation.get("exist");
+                success = (boolean) returnInformation.get("exist");
                 String user = (String) returnInformation.get("name");
                 String password = (String) returnInformation.get("passwd");
                 // TODO: IMAGE???????????
+                if (!success) {
+                    Toast.makeText(getActivity(), "Not yet register ?",Toast.LENGTH_SHORT).show();
+                } else {
+                    mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                            "IMG_" + user + ".jpg");
+                    ((MainActivity) getActivity()).setUser(user);
+                    ((MainActivity) getActivity()).setPass(password);
+                    ((MainActivity) getActivity()).setFile(mediaFile);
+
+                    releaseCameraAndPreview();
+                    ((MainActivity) getActivity()).setActionState(MainActivity.IDLESTATE);
+                    ((MainActivity) getActivity()).setCurrentFragment(MainActivity.LOBBYFRAG);
+                    ((MainActivity) getActivity()).replaceFragments(LobbyFragment.class);
+                }
 
             } catch (JSONException e) {
                 System.out.println("unable to catch response\n");
             }
-            if (!success) {
-                System.out.println("REGISTER FAIL\n");
-            }
+
         }
     }
 }
