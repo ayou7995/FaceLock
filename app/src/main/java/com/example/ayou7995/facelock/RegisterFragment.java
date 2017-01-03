@@ -7,6 +7,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,21 +20,38 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class RegisterFragment extends Fragment {
 
-    private final static String TAG = "Jonathan";
+    private final static String TAG = "Isabella";
 
     private EditText name_et;
     private EditText pass_et;
     private ImageView face_img;
+    private String name = "";
+    private String passwd = "";
+
+    // TODO: add deviceID
+    private String deviceID = "";
+    // TODO: assert img is not null
+    private File img = null;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,7 +104,20 @@ public class RegisterFragment extends Fragment {
 //                    .commit();
 //        }
 //    }
+    private JSONObject createInfoJSON() {
+        JSONObject sendInfo = new JSONObject();
+        try {
+            sendInfo.put("status", "register");
+            sendInfo.put("ID", deviceID);
+            sendInfo.put("face", img);
+            sendInfo.put("name", name);
+            sendInfo.put("passwd", passwd);
+        } catch (JSONException e) {
+            System.out.println("JSONException\n");
+        }
 
+        return sendInfo;
+}
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
@@ -116,8 +149,13 @@ public class RegisterFragment extends Fragment {
                 }
             }
         }).start();
-        String name = name_et.getText().toString();
-        String password = pass_et.getText().toString();
+
+        /** send register info to server **/
+        name = name_et.getText().toString();
+        passwd = pass_et.getText().toString();
+
+        registerSender sender = new registerSender();
+        sender.execute(createInfoJSON());
     }
 
     private void showFace(File f) {
@@ -165,6 +203,7 @@ public class RegisterFragment extends Fragment {
     private void displayInformation() {
 
         File pictureFile = ((MainActivity) getActivity()).getFile();
+        img = ((MainActivity) getActivity()).getFile();
 
         Bitmap bitmap = null;
         if(pictureFile.exists()){
@@ -194,4 +233,73 @@ public class RegisterFragment extends Fragment {
             pass_et.setText(((MainActivity) getActivity()).getPass());
         }
     }
+    private class registerSender extends AsyncTask<JSONObject, Void, String> {
+
+        @Override
+        protected String doInBackground(JSONObject... params) {
+            String url = "http://163.28.17.73:8000/";
+            URL object;
+            HttpURLConnection con;
+            try {
+                object = new URL(url);
+                con = (HttpURLConnection) object.openConnection();
+                con.setDoOutput(true);
+                con.setDoInput(true);
+                con.setRequestProperty("Content-Type", "application/json");
+                con.setRequestMethod("POST");
+                con.connect();
+                for (JSONObject item : params) {
+                    OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), "UTF-8");
+                    wr.write(item.toString());
+                    wr.flush();
+                    wr.close();
+                }
+                if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    try {
+                        BufferedReader input = new BufferedReader(
+                                new InputStreamReader(con.getInputStream()));
+                        String inputLine;
+                        StringBuilder result = new StringBuilder();
+                        while ((inputLine = input.readLine()) != null) {
+                            result.append(inputLine);
+                        }
+                        input.close();
+                        return result.toString();
+                    } catch (IOException e) {
+                        System.out.println("no response!\n");
+                    }
+                } else {
+                    System.out.println(con.getResponseMessage());
+                    System.out.println("connection failed\n");
+                }
+            } catch (MalformedURLException e) {
+                System.out.println("Invalid URL!");
+                return null;
+            } catch (IOException e) {
+                System.out.println("Fail to connect!");
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            boolean success = false;
+            if (result == null) {
+                System.out.println("no result!\n");
+                return;
+            }
+            JSONObject returnInformation;
+            try {
+                returnInformation = new JSONObject(result);
+                 success = (boolean) returnInformation.get("exist");
+
+            } catch (JSONException e) {
+                System.out.println("unable to catch response\n");
+            }
+            if (!success) {
+                System.out.println("REGISTER FAIL\n");
+            }
+        }
+    }
+
 }
