@@ -49,7 +49,7 @@ public class PasswordVerificationFragment extends Fragment {
         Button confirm_btn = (Button) view.findViewById(R.id.passVerify_button);
         Button faceVerify_btn = (Button) view.findViewById(R.id.faceVerify_button);
 
-        assert ((MainActivity)getActivity()).getActionState().equals(MainActivity.VERIFYSTATE);
+        assert ((MainActivity)getActivity()).getActionState().equals(MainActivity.PASSWORDSTATE);
 
         confirm_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,6 +62,7 @@ public class PasswordVerificationFragment extends Fragment {
         faceVerify_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ((MainActivity) getActivity()).setActionState(MainActivity.VERIFYSTATE);
                 ((MainActivity) getActivity()).setCurrentFragment(MainActivity.PHOTOFRAG);
                 ((MainActivity) getActivity()).replaceFragments(PhotoFragment.class);
             }
@@ -128,21 +129,6 @@ public class PasswordVerificationFragment extends Fragment {
         verifySender sender = new verifySender();
         sender.execute(((MainActivity) getActivity()).createInfoJSON());
 
-        if(valid.equals("success")) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "IMG_" + faceImgName + ".jpg");
-            ((MainActivity) getActivity()).setUser("ayou7995");
-            ((MainActivity) getActivity()).setPass("password");
-            ((MainActivity) getActivity()).setFile(mediaFile);
-
-            ((MainActivity) getActivity()).setActionState(MainActivity.IDLESTATE);
-            ((MainActivity) getActivity()).setCurrentFragment(MainActivity.LOBBYFRAG);
-            ((MainActivity) getActivity()).replaceFragments(LobbyFragment.class);
-
-        }
-        else if (valid.equals("fail")){
-            Toast.makeText(getActivity(), "Not yet register ?",Toast.LENGTH_SHORT).show();
-        }
     }
     private class verifySender extends AsyncTask<JSONObject, Void, String> {
 
@@ -203,16 +189,31 @@ public class PasswordVerificationFragment extends Fragment {
             try {
 
                 returnInformation = new JSONObject(result);
-                valid = (String) returnInformation.get("exist");
+                success = (boolean) returnInformation.get("valid");
                 String user = (String) returnInformation.get("name");
                 String password = (String) returnInformation.get("passwd");
-                // TODO: IMAGE???????????
+
+                if(success) {
+                    mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                            "IMG_" + user + ".jpg");
+                    ((MainActivity) getActivity()).setUser("ayou7995");
+                    ((MainActivity) getActivity()).setPass("password");
+                    ((MainActivity) getActivity()).setFile(mediaFile);
+
+                    ((MainActivity) getActivity()).setActionState(MainActivity.IDLESTATE);
+                    ((MainActivity) getActivity()).setCurrentFragment(MainActivity.LOBBYFRAG);
+                    ((MainActivity) getActivity()).replaceFragments(LobbyFragment.class);
+
+                }
+                else {
+                    Toast.makeText(getActivity(), "Not yet register ?",Toast.LENGTH_SHORT).show();
+                }
+
+                ((MainActivity) getActivity()).setUser(user);
+                ((MainActivity) getActivity()).setPass(password);
 
             } catch (JSONException e) {
                 System.out.println("unable to catch response\n");
-            }
-            if (!success) {
-                System.out.println("REGISTER FAIL\n");
             }
         }
     }

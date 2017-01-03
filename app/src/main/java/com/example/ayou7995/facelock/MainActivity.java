@@ -54,6 +54,7 @@ public class MainActivity extends FragmentActivity {
     public static String CHECKEXIST = "exist";
     public static String REGISTERSTATE = "register";
     public static String VERIFYSTATE = "verify";
+    public static String PASSWORDSTATE = "login_passwd";
     public static String UPDATESTATE = "update";
 
     // User Detail
@@ -61,6 +62,7 @@ public class MainActivity extends FragmentActivity {
     private String currentPass = "";
     // TODO: add currentDeviceID
     private String currentDeviceID = "";
+    private String binaryData = "";
     private File currentFile = null;
     private BootBroadcastReceiver bootBroadcastReceiver;
 
@@ -152,15 +154,11 @@ public class MainActivity extends FragmentActivity {
     public String getActionState() {
         return currentActionState;
     }
-
     public void setActionState(String actionState) {
         currentActionState = actionState;
     }
 
-    public String getUser() {
-        return currentUser;
-    }
-
+    public String getUser() { return currentUser; }
     public void setUser(String user) {
         currentUser = user;
     }
@@ -168,19 +166,19 @@ public class MainActivity extends FragmentActivity {
     public String getPass() {
         return currentPass;
     }
-
     public void setPass(String pass) {
         currentPass = pass;
     }
 
     public String getCurrentDeviceID() { return currentDeviceID; }
-
     public  void setCurrentDeviceID(String deviceID) { currentDeviceID = deviceID; }
+
+    public String getBinaryData() { return binaryData; }
+    public void setBinaryData(String data) { binaryData = data; }
 
     public File getFile() {
         return currentFile;
     }
-
     public void setFile(File file) {
         currentFile = file;
     }
@@ -190,7 +188,7 @@ public class MainActivity extends FragmentActivity {
         try {
             sendInfo.put("status", currentActionState);
             sendInfo.put("ID", currentDeviceID);
-            sendInfo.put("face", currentFile);
+            sendInfo.put("face", binaryData);
             sendInfo.put("name", currentUser);
             sendInfo.put("passwd", currentPass);
         } catch (JSONException e) {
