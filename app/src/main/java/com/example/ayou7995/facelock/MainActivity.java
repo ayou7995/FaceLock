@@ -89,7 +89,7 @@ public class MainActivity extends FragmentActivity {
         // Check if any profile exists
         currentActionState = CHECKEXIST;
         checkExistence sender = new checkExistence ();
-        sender.execute();
+        sender.execute(createInfoJSON());
 
         if (profileExists) {
             currentFragment = PHOTOFRAG;
