@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -14,10 +15,19 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class PhotoFragment extends Fragment {
 
@@ -43,6 +53,10 @@ public class PhotoFragment extends Fragment {
     private CameraPreview mPreview = null;
     private Camera.PictureCallback mPicture;
     private int frontCameraId = -1;
+    private String valid = "success";
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -165,7 +179,9 @@ public class PhotoFragment extends Fragment {
             }
         }).start();
 
-        String valid = "success";
+        verifySender sender = new verifySender();
+        sender.execute(((MainActivity) getActivity()).createInfoJSON());
+
         if(valid.equals("success")) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                     "IMG_" + faceImgName + ".jpg");
@@ -259,5 +275,78 @@ public class PhotoFragment extends Fragment {
         }
 
         return mediaFile;
+    }
+
+    private class verifySender extends AsyncTask<JSONObject, Void, String> {
+
+        @Override
+        protected String doInBackground(JSONObject... params) {
+            String url = "http://163.28.17.73:8000/";
+            URL object;
+            HttpURLConnection con;
+            try {
+                object = new URL(url);
+                con = (HttpURLConnection) object.openConnection();
+                con.setDoOutput(true);
+                con.setDoInput(true);
+                con.setRequestProperty("Content-Type", "application/json");
+                con.setRequestMethod("POST");
+                con.connect();
+                for (JSONObject item : params) {
+                    OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), "UTF-8");
+                    wr.write(item.toString());
+                    wr.flush();
+                    wr.close();
+                }
+                if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    try {
+                        BufferedReader input = new BufferedReader(
+                                new InputStreamReader(con.getInputStream()));
+                        String inputLine;
+                        StringBuilder result = new StringBuilder();
+                        while ((inputLine = input.readLine()) != null) {
+                            result.append(inputLine);
+                        }
+                        input.close();
+                        return result.toString();
+                    } catch (IOException e) {
+                        System.out.println("no response!\n");
+                    }
+                } else {
+                    System.out.println(con.getResponseMessage());
+                    System.out.println("connection failed\n");
+                }
+            } catch (MalformedURLException e) {
+                System.out.println("Invalid URL!");
+                return null;
+            } catch (IOException e) {
+                System.out.println("Fail to connect!");
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            boolean success = false;
+            if (result == null) {
+                System.out.println("no result!\n");
+                return;
+            }
+            JSONObject returnInformation;
+            try {
+
+                returnInformation = new JSONObject(result);
+                valid = (String) returnInformation.get("exist");
+                String user = (String) returnInformation.get("name");
+                String password = (String) returnInformation.get("passwd");
+                // TODO: IMAGE???????????
+
+            } catch (JSONException e) {
+                System.out.println("unable to catch response\n");
+            }
+            if (!success) {
+                System.out.println("REGISTER FAIL\n");
+            }
+        }
     }
 }
