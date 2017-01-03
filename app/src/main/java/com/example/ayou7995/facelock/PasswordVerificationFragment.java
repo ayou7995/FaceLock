@@ -189,15 +189,15 @@ public class PasswordVerificationFragment extends Fragment {
             try {
 
                 returnInformation = new JSONObject(result);
-                success = (boolean) returnInformation.get("valid");
+                success = (boolean) returnInformation.get("OK");
                 String user = (String) returnInformation.get("name");
                 String password = (String) returnInformation.get("passwd");
 
                 if(success) {
                     mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                             "IMG_" + user + ".jpg");
-                    ((MainActivity) getActivity()).setUser("ayou7995");
-                    ((MainActivity) getActivity()).setPass("password");
+                    ((MainActivity) getActivity()).setUser(user);
+                    ((MainActivity) getActivity()).setPass(password);
                     ((MainActivity) getActivity()).setFile(mediaFile);
 
                     ((MainActivity) getActivity()).setActionState(MainActivity.IDLESTATE);
