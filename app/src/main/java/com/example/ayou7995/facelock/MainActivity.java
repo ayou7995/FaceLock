@@ -88,7 +88,7 @@ public class MainActivity extends FragmentActivity {
         // Todo
         // Check if any profile exists
         currentActionState = CHECKEXIST;
-        checkExistence sender = new checkExistence ();
+        checkExistence sender = new checkExistence();
         sender.execute(createInfoJSON());
 
         if (profileExists) {

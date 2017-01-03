@@ -125,6 +125,9 @@ public class PasswordVerificationFragment extends Fragment {
             }
         }).start();
 
+        verifySender sender = new verifySender();
+        sender.execute(((MainActivity) getActivity()).createInfoJSON());
+
         if(valid.equals("success")) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                     "IMG_" + faceImgName + ".jpg");
