@@ -134,11 +134,12 @@ public class RegisterFragment extends Fragment {
         String name = name_et.getText().toString();
         String password = pass_et.getText().toString();
 
-
-        ((MainActivity) getActivity()).setUser(name);
-        ((MainActivity) getActivity()).setPass(password);
-        registerSender sender = new registerSender();
-        sender.execute(((MainActivity) getActivity()).createInfoJSON());
+        if (!name.isEmpty() && !password.isEmpty()) {
+            ((MainActivity) getActivity()).setUser(name);
+            ((MainActivity) getActivity()).setPass(password);
+            registerSender sender = new registerSender();
+            sender.execute(((MainActivity) getActivity()).createInfoJSON());
+        }
     }
 
     private void showFace(File f) {
@@ -273,13 +274,14 @@ public class RegisterFragment extends Fragment {
             JSONObject returnInformation;
             try {
                 returnInformation = new JSONObject(result);
-                 success = (boolean) returnInformation.get("exist");
+                success = (boolean) returnInformation.get("OK");
 
             } catch (JSONException e) {
                 System.out.println("unable to catch response\n");
             }
             if (!success) {
-                System.out.println("REGISTER FAIL\n");
+                Toast.makeText(getActivity(),
+                        "You have already registered.", Toast.LENGTH_SHORT).show();
             }
         }
     }
