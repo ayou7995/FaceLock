@@ -11,6 +11,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.Window;
@@ -36,6 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static android.content.Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP;
+import static android.provider.Settings.Secure.ANDROID_ID;
 
 public class MainActivity extends FragmentActivity {
 
@@ -61,7 +63,7 @@ public class MainActivity extends FragmentActivity {
     private String currentUser = "";
     private String currentPass = "";
     // TODO: add currentDeviceID
-    private String currentDeviceID = "";
+    private String currentDeviceID = Settings.Secure.ANDROID_ID;
     private String binaryData = "";
     private File currentFile = null;
     private BootBroadcastReceiver bootBroadcastReceiver;
