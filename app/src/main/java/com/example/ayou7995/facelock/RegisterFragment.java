@@ -39,7 +39,8 @@ import java.net.URL;
 
 public class RegisterFragment extends Fragment {
 
-    private final static String TAG = "Isabella";
+    private final static String TAG = "Jonathan";
+    private final static String tag = "[RegisterFragment] : ";
 
     private EditText name_et;
     private EditText pass_et;
@@ -104,7 +105,7 @@ public class RegisterFragment extends Fragment {
 
     private void register() {
 
-        Log.i(TAG,"Register");
+        Log.i(TAG,tag + "Register");
 
         // Todo
         // Register profile to backend
@@ -247,6 +248,7 @@ public class RegisterFragment extends Fragment {
                             result.append(inputLine);
                         }
                         input.close();
+                        Log.i(TAG, tag + result.toString());
                         return result.toString();
                     } catch (IOException e) {
                         System.out.println("no response!\n");
