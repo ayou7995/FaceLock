@@ -68,7 +68,7 @@ public class MainActivity extends FragmentActivity {
     // TODO: add currentDeviceID
     private String currentDeviceID = "";
     // private String currentDeviceID = Settings.Secure.ANDROID_ID;
-    private String binaryData = "";
+    private byte[] binaryData = null;
     private File currentFile = null;
     private BootBroadcastReceiver bootBroadcastReceiver;
 
@@ -175,8 +175,8 @@ public class MainActivity extends FragmentActivity {
     public String getCurrentDeviceID() { return currentDeviceID; }
     public  void setCurrentDeviceID(String deviceID) { currentDeviceID = deviceID; }
 
-    public String getBinaryData() { return binaryData; }
-    public void setBinaryData(String data) { binaryData = data; }
+    public byte[] getBinaryData() { return binaryData; }
+    public void setBinaryData(byte[] data) { binaryData = data; }
 
     public File getFile() {
         return currentFile;
