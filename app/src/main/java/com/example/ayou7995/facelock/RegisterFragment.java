@@ -220,7 +220,7 @@ public class RegisterFragment extends Fragment {
 
         @Override
         protected String doInBackground(JSONObject... params) {
-            String url = "http://163.28.17.73:8000/";
+            String url = "http://163.28.17.73:8000/server/";
             URL object;
             HttpURLConnection con;
             try {

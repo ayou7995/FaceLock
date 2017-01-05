@@ -21,6 +21,8 @@
     <!-- API 21 以上要求使用 GPS -->
     <uses-feature android:name="android.hardware.location.gps" />
     <uses-feature android:name="android.hardware.camera2.full" />
+    <!-- 要求 DeviceID -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"

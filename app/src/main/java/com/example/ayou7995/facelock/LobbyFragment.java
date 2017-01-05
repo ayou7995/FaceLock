@@ -2,7 +2,6 @@ package com.example.ayou7995.facelock;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,17 +9,14 @@ import android.widget.Button;
 
 public class LobbyFragment extends Fragment {
 
-    private static final String TAG = "LobbyFragment";
-    // private static final String TAG = "Jonathan";
-
-    private Button update_profile_B;
+    // private static final String TAG = "LobbyFragment";
 
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.lobby_fragment, container, false);
         Button register_profile_B = (Button) view.findViewById(R.id.register_profile_button);
-        update_profile_B = (Button) view.findViewById(R.id.update_profile_button);
+        Button update_profile_B = (Button) view.findViewById(R.id.update_profile_button);
 
         ((MainActivity) getActivity()).setActionState(MainActivity.IDLESTATE);
         if (((MainActivity)getActivity()).getUser().equals("")) {
@@ -46,16 +42,6 @@ public class LobbyFragment extends Fragment {
         });
         return view;
     }
-
-//    @Override
-//    public void onDestroyView() {
-//        super.onDestroyView();
-//        if (getFragmentManager().findFragmentById(this.getId()) != null) {
-//            Log.i(TAG, TAG + " destroy.");
-//            getFragmentManager().beginTransaction().remove(this)
-//                    .commit();
-//        }
-//    }
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

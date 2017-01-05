@@ -14,6 +14,8 @@ import android.os.AsyncTask;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -42,6 +44,7 @@ import static android.provider.Settings.Secure.ANDROID_ID;
 public class MainActivity extends FragmentActivity {
 
     private final static String TAG = "Jonathan";
+    private final static String tag = "[MainActivity] : ";
 
     // Fragment Control
     private int currentFragment = 0;
@@ -63,10 +66,15 @@ public class MainActivity extends FragmentActivity {
     private String currentUser = "";
     private String currentPass = "";
     // TODO: add currentDeviceID
-    private String currentDeviceID = Settings.Secure.ANDROID_ID;
+    private String currentDeviceID = "";
+    // private String currentDeviceID = Settings.Secure.ANDROID_ID;
     private String binaryData = "";
     private File currentFile = null;
     private BootBroadcastReceiver bootBroadcastReceiver;
+
+    private FragmentManager fragmentManager;
+    PhotoFragment photoFragment;
+    LobbyFragment lobbyFragment;
 
     Boolean profileExists = true;
 
@@ -85,25 +93,17 @@ public class MainActivity extends FragmentActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
 
-        FragmentManager fragmentManager = getFragmentManager();
-        LobbyFragment lobbyFragment = new LobbyFragment();
-        PhotoFragment photoFragment = new PhotoFragment();
+        fragmentManager = getFragmentManager();
+        lobbyFragment = new LobbyFragment();
+        photoFragment = new PhotoFragment();
+
+        currentDeviceID = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
 
         // Todo
         // Check if any profile exists
         currentActionState = CHECKEXIST;
         checkExistence sender = new checkExistence();
         sender.execute(createInfoJSON());
-
-        if (profileExists) {
-            currentFragment = PHOTOFRAG;
-            currentActionState = VERIFYSTATE;
-            fragmentManager.beginTransaction().add(R.id.main_frameLayout, photoFragment).commit();
-        } else {
-            currentFragment = LOBBYFRAG;
-            currentActionState = IDLESTATE;
-            fragmentManager.beginTransaction().add(R.id.main_frameLayout, lobbyFragment).commit();
-        }
 
         // Broadcast for detecting screen status
         bootBroadcastReceiver = new BootBroadcastReceiver();
@@ -240,7 +240,7 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         protected String doInBackground(JSONObject... params) {
-            String url = "http://163.28.17.73:8000/";
+            String url = "http://163.28.17.73:8000/server/";
             URL object;
             HttpURLConnection con;
             ConnectivityManager ConnMgr = (ConnectivityManager)
@@ -273,6 +273,7 @@ public class MainActivity extends FragmentActivity {
                             result.append(inputLine);
                         }
                         input.close();
+                        Log.d(TAG,result.toString());
                         return result.toString();
                     } catch (IOException e) {
                         System.out.println("no response!\n");
@@ -299,7 +300,17 @@ public class MainActivity extends FragmentActivity {
             JSONObject returnInformation;
             try {
                 returnInformation = new JSONObject(result);
+
                 profileExists = (boolean) returnInformation.get("exist");
+                if (profileExists) {
+                    currentFragment = PHOTOFRAG;
+                    currentActionState = VERIFYSTATE;
+                    fragmentManager.beginTransaction().add(R.id.main_frameLayout, photoFragment).commit();
+                } else {
+                    currentFragment = LOBBYFRAG;
+                    currentActionState = IDLESTATE;
+                    fragmentManager.beginTransaction().add(R.id.main_frameLayout, lobbyFragment).commit();
+                }
 
             } catch (JSONException e) {
                 System.out.println("unable to catch response\n");

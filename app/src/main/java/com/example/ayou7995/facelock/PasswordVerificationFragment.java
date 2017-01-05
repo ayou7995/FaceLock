@@ -27,8 +27,9 @@ import java.net.URL;
 
 public class PasswordVerificationFragment extends Fragment {
 
-    private final static String TAG = "PasswordVerifyFragment";
-    // private final static String TAG = "Jonathan";
+    // private final static String TAG = "PasswordVerifyFragment";
+    private final static String TAG = "Jonathan";
+    private final static String tag = "[PasswordVerificationFragment] : ";
 
     private static final String faceImgName = "FaceLock";
     private static final File mediaStorageDir =
@@ -70,16 +71,6 @@ public class PasswordVerificationFragment extends Fragment {
         return view;
     }
 
-//    @Override
-//    public void onDestroyView() {
-//        super.onDestroyView();
-//        if (getFragmentManager().findFragmentById(this.getId()) != null) {
-//            Log.i(TAG, TAG + " destroy.");
-//            getFragmentManager().beginTransaction().remove(this)
-//                    .commit();
-//        }
-//    }
-
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
@@ -91,7 +82,7 @@ public class PasswordVerificationFragment extends Fragment {
 
         if (username.isEmpty() || password.isEmpty()) {
             Toast.makeText(getActivity(),"Inputs cannot be empty.", Toast.LENGTH_SHORT).show();
-            Log.e(TAG,"Username or password is empty.");
+            Log.e(TAG,tag+"Username or password is empty.");
             return true;
         }
         return false;
@@ -99,7 +90,7 @@ public class PasswordVerificationFragment extends Fragment {
 
     private void login() {
 
-        Log.d(TAG,"Login");
+        // Log.d(TAG,"Login");
 
         String username = username_et.getText().toString();
         String password = password_et.getText().toString();
@@ -134,7 +125,7 @@ public class PasswordVerificationFragment extends Fragment {
 
         @Override
         protected String doInBackground(JSONObject... params) {
-            String url = "http://163.28.17.73:8000/";
+            String url = "http://163.28.17.73:8000/server/";
             URL object;
             HttpURLConnection con;
             try {
@@ -161,6 +152,7 @@ public class PasswordVerificationFragment extends Fragment {
                             result.append(inputLine);
                         }
                         input.close();
+                        Log.i(TAG,tag+result.toString());
                         return result.toString();
                     } catch (IOException e) {
                         System.out.println("no response!\n");
