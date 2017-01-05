@@ -164,12 +164,21 @@ public class PhotoFragment extends Fragment {
 
     private String encodeImage(File pictureFile) {
 
+
         Bitmap bm = BitmapFactory.decodeFile(pictureFile.toString());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] b = baos.toByteArray();
-        //Base64.de
-        return Base64.encodeToString(b, Base64.DEFAULT);
+        return toBinary(b);
+//        return Base64.encodeToString(b, Base64.DEFAULT);
+    }
+
+    private String toBinary(byte[] bytes)
+    {
+        StringBuilder sb = new StringBuilder(bytes.length * Byte.SIZE);
+        for( int i = 0; i < Byte.SIZE * bytes.length; i++ )
+            sb.append((bytes[i / Byte.SIZE] << i % Byte.SIZE & 0x80) == 0 ? '0' : '1');
+        return sb.toString();
     }
 
     private void verifyFace() {
