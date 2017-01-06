@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -41,6 +42,7 @@ public class PhotoFragment extends Fragment {
     public static final int MEDIA_TYPE_VIDEO = 2;
 
     private static final String faceImgName = "FaceLock";
+    private static final String rotateImg = "_Rotate";
     // private Static final String facImgName = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
     // To be safe, you should check that the SDCard is mounted
     // using Environment.getExternalStorageState() before doing this.
@@ -114,10 +116,17 @@ public class PhotoFragment extends Fragment {
                         FileOutputStream fos = new FileOutputStream(pictureFile);
                         fos.write(data);
                         fos.close();
-                        // Only save taken face image.
+
+                        // rotate picture and save it back.
                         ((MainActivity)getActivity()).setFile(pictureFile);
 
-                        ((MainActivity)getActivity()).setBinaryData(encodeImage(pictureFile));
+                        File rotatedPic = rotatePicture();
+                        ((MainActivity)getActivity()).setFile(rotatedPic);
+
+                        // Only save taken face image.
+
+
+                        ((MainActivity)getActivity()).setBinaryData(encodeImage(rotatedPic));
 
                         if( ((MainActivity)getActivity()).getActionState().equals(MainActivity.REGISTERSTATE) ||
                             ((MainActivity)getActivity()).getActionState().equals(MainActivity.UPDATESTATE)) {
@@ -145,6 +154,57 @@ public class PhotoFragment extends Fragment {
         return view;
     }
 
+    private File rotatePicture() {
+
+        File pictureFile = ((MainActivity) getActivity()).getFile();
+
+        Bitmap bitmap = null;
+        if(pictureFile.exists()){
+            Log.i(TAG, "Loading Img_FaceLock.jpg.");
+            bitmap = BitmapFactory.decodeFile(pictureFile.toString());
+        }
+        else {
+            Log.i(TAG, "Img_FaceLock.jpg doesn't exists.");
+        }
+
+        Matrix matrix = new Matrix();
+        matrix.postRotate(270);
+        Bitmap finalBitmap = null;
+        if (bitmap != null) {
+            finalBitmap = Bitmap.createBitmap(bitmap , 0, 0,
+                    bitmap .getWidth(), bitmap .getHeight(),
+                    matrix, true);
+        }
+
+        //create a file to write bitmap data
+        File f = new File(mediaStorageDir.getPath() + File.separator +
+                "IMG_"+ faceImgName + rotateImg + ".jpg");
+        try {
+            f.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //Convert bitmap to byte array
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        if (finalBitmap != null) {
+            finalBitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
+        }
+        byte[] bitmapdata = bos.toByteArray();
+
+        //write the bytes in file
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(f);
+            fos.write(bitmapdata);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return f;
+    }
+
 //    @Override
 //    public void onDestroyView() {
 //        super.onDestroyView();
@@ -169,9 +229,9 @@ public class PhotoFragment extends Fragment {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] b = baos.toByteArray();
-        return b.toString();
+//        return new String(b);
 //        return b;
-//        return Base64.encodeToString(b, Base64.DEFAULT);
+        return Base64.encodeToString(b, Base64.DEFAULT);
     }
 
     private String toBinary(byte[] bytes)

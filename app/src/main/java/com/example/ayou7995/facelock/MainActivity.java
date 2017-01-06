@@ -68,7 +68,7 @@ public class MainActivity extends FragmentActivity {
     // TODO: add currentDeviceID
     private String currentDeviceID = "";
     // private String currentDeviceID = Settings.Secure.ANDROID_ID;
-    private String binaryData = null;
+    private String binaryData = "";
     private File currentFile = null;
     private BootBroadcastReceiver bootBroadcastReceiver;
 
@@ -302,6 +302,7 @@ public class MainActivity extends FragmentActivity {
                 returnInformation = new JSONObject(result);
 
                 profileExists = (boolean) returnInformation.get("exist");
+//                profileExists = false;
                 if (profileExists) {
                     currentFragment = PHOTOFRAG;
                     currentActionState = VERIFYSTATE;
