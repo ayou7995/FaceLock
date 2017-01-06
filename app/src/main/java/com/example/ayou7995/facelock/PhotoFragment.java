@@ -162,15 +162,15 @@ public class PhotoFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
     }
 
-    private byte[] encodeImage(File pictureFile) {
+    private String encodeImage(File pictureFile) {
 
 
         Bitmap bm = BitmapFactory.decodeFile(pictureFile.toString());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] b = baos.toByteArray();
-//        return b.toString();
-        return b;
+        return b.toString();
+//        return b;
 //        return Base64.encodeToString(b, Base64.DEFAULT);
     }
 
