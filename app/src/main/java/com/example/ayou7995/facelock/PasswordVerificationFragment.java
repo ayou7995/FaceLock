@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -94,6 +96,8 @@ public class PasswordVerificationFragment extends Fragment {
 
         String username = username_et.getText().toString();
         String password = password_et.getText().toString();
+        ((MainActivity) getActivity()).setUser(username);
+        ((MainActivity) getActivity()).setPass(password);
 
         // TODO:
         // request for verification by password
@@ -106,7 +110,7 @@ public class PasswordVerificationFragment extends Fragment {
             @Override
             public void run() {
                 try{
-                    Thread.sleep(3000);
+                    Thread.sleep(2000);
                 }
                 catch(Exception e){
                     e.printStackTrace();
@@ -182,12 +186,29 @@ public class PasswordVerificationFragment extends Fragment {
 
                 returnInformation = new JSONObject(result);
                 success = (boolean) returnInformation.get("OK");
-                String user = (String) returnInformation.get("name");
+                String user = (String) returnInformation.get("username");
                 String password = (String) returnInformation.get("passwd");
+                String data = (String) returnInformation.get("face");
 
                 if(success) {
+                    //mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                    //        "IMG_" + user + ".jpg");
                     mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                            "IMG_" + user + ".jpg");
+                            "IMG_"+ faceImgName + ".jpg");
+                    if (mediaFile.delete()) {
+                        try {
+                            if(!mediaFile.createNewFile()) {
+                                Log.i(TAG, "load fail.");
+                            }
+                            FileOutputStream fos = new FileOutputStream(mediaFile);
+                            fos.write(Base64.decode(data, Base64.DEFAULT));
+                            fos.close();
+                            Log.i(TAG, "load image from server.");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
                     ((MainActivity) getActivity()).setUser(user);
                     ((MainActivity) getActivity()).setPass(password);
                     ((MainActivity) getActivity()).setFile(mediaFile);
@@ -201,8 +222,8 @@ public class PasswordVerificationFragment extends Fragment {
                     Toast.makeText(getActivity(), "Not yet register ?",Toast.LENGTH_SHORT).show();
                 }
 
-                ((MainActivity) getActivity()).setUser(user);
-                ((MainActivity) getActivity()).setPass(password);
+//                ((MainActivity) getActivity()).setUser(user);
+//                ((MainActivity) getActivity()).setPass(password);
 
             } catch (JSONException e) {
                 System.out.println("unable to catch response\n");
