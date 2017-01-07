@@ -43,7 +43,7 @@ public class PhotoFragment extends Fragment {
     public static final int MEDIA_TYPE_VIDEO = 2;
 
     private static final String faceImgName = "FaceLock";
-    private static final String rotateImg = "_Rotate";
+//    private static final String rotateImg = "_Rotate";
     // private Static final String facImgName = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
     // To be safe, you should check that the SDCard is mounted
     // using Environment.getExternalStorageState() before doing this.
@@ -177,11 +177,17 @@ public class PhotoFragment extends Fragment {
                     matrix, true);
         }
 
-        //create a file to write bitmap data
-        File f = new File(mediaStorageDir.getPath() + File.separator +
-                "IMG_"+ faceImgName + rotateImg + ".jpg");
+//        create a file to write bitmap data
+//        File f = new File(mediaStorageDir.getPath() + File.separator +
+//                "IMG_"+ faceImgName + rotateImg + ".jpg");
         try {
-            f.createNewFile();
+            if(pictureFile.delete()) {
+                Log.i(TAG, "delete landscape Img_FaceLock.jpg");
+                }
+            if(pictureFile.createNewFile()) {
+                Log.i(TAG, "create portrait Img_FaceLock.jpg");
+            }
+//            f.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -196,14 +202,15 @@ public class PhotoFragment extends Fragment {
         //write the bytes in file
         FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream(f);
+            fos = new FileOutputStream(pictureFile);
+//            fos = new FileOutputStream(f);
             fos.write(bitmapdata);
             fos.flush();
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return f;
+        return pictureFile;
     }
 
 //    @Override
@@ -230,18 +237,17 @@ public class PhotoFragment extends Fragment {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] b = baos.toByteArray();
-//        return new String(b);
-//        return b;
         return Base64.encodeToString(b, Base64.DEFAULT);
     }
 
-    private String toBinary(byte[] bytes)
-    {
-        StringBuilder sb = new StringBuilder(bytes.length * Byte.SIZE);
-        for( int i = 0; i < Byte.SIZE * bytes.length; i++ )
-            sb.append((bytes[i / Byte.SIZE] << i % Byte.SIZE & 0x80) == 0 ? '0' : '1');
-        return sb.toString();
-    }
+
+//    private String toBinary(byte[] bytes)
+//    {
+//        StringBuilder sb = new StringBuilder(bytes.length * Byte.SIZE);
+//        for( int i = 0; i < Byte.SIZE * bytes.length; i++ )
+//            sb.append((bytes[i / Byte.SIZE] << i % Byte.SIZE & 0x80) == 0 ? '0' : '1');
+//        return sb.toString();
+//    }
 
     private void verifyFace() {
 
@@ -428,12 +434,27 @@ public class PhotoFragment extends Fragment {
                 success = (boolean) returnInformation.get("valid");
                 String user = (String) returnInformation.get("username");
                 String password = (String) returnInformation.get("passwd");
-                // TODO: IMAGE???????????
+                String data = (String) returnInformation.get("face");
+
                 if (!success) {
                     Toast.makeText(getActivity(), "Not yet register ?",Toast.LENGTH_SHORT).show();
                 } else {
                     mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                            "IMG_" + user + ".jpg");
+                            "IMG_"+ faceImgName + ".jpg");
+                    if (mediaFile.delete()) {
+                        try {
+                            if(!mediaFile.createNewFile()) {
+                                Log.i(TAG, "load fail.");
+                            }
+                            FileOutputStream fos = new FileOutputStream(mediaFile);
+                            fos.write(Base64.decode(data, Base64.DEFAULT));
+                            fos.close();
+                            Log.i(TAG, "load image from server.");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
                     ((MainActivity) getActivity()).setUser(user);
                     ((MainActivity) getActivity()).setPass(password);
                     ((MainActivity) getActivity()).setFile(mediaFile);
