@@ -36,7 +36,8 @@ import java.net.URL;
 
 public class PhotoFragment extends Fragment {
 
-    private static final String TAG = "PhotoFragment";
+    private static final String TAG = "Jonathan";
+    private static final String tag = "[PhotoFragment] : ";
     
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
@@ -395,6 +396,7 @@ public class PhotoFragment extends Fragment {
                             result.append(inputLine);
                         }
                         input.close();
+                        Log.i(TAG, tag + result.toString());
                         return result.toString();
                     } catch (IOException e) {
                         System.out.println("no response!\n");
@@ -423,8 +425,8 @@ public class PhotoFragment extends Fragment {
             try {
 
                 returnInformation = new JSONObject(result);
-                success = (boolean) returnInformation.get("exist");
-                String user = (String) returnInformation.get("name");
+                success = (boolean) returnInformation.get("valid");
+                String user = (String) returnInformation.get("username");
                 String password = (String) returnInformation.get("passwd");
                 // TODO: IMAGE???????????
                 if (!success) {

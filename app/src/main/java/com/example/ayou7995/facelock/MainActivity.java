@@ -1,6 +1,5 @@
 package com.example.ayou7995.facelock;
 
-
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -11,21 +10,18 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,9 +33,6 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import static android.content.Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP;
-import static android.provider.Settings.Secure.ANDROID_ID;
 
 public class MainActivity extends FragmentActivity {
 
