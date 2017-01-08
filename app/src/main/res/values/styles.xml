@@ -8,7 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="OverlayDialog" parent="@android:style/Theme.Dialog">
+    <!--<style name="OverlayDialog" parent="@android:style/Theme.Dialog">-->
+
+    <style name="OverlayDialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>

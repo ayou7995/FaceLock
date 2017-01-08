@@ -12,4 +12,6 @@
     <string name="snap">snap</string>
     <string name="password_verify">Password Verify</string>
     <string name="back">back</string>
+    <string name="instructions">instructions</string>
+    <string name="unlock">unlock</string>
 </resources>
