@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,13 +57,13 @@ public class PhotoFragment extends Fragment {
 
     private FrameLayout camera_preview;
 
+    private ProgressDialog dialog;
+
     private Camera mCamera = null;
     private CameraPreview mPreview = null;
     private Camera.PictureCallback mPicture;
     private int frontCameraId = -1;
     private String valid = "success";
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -138,10 +139,6 @@ public class PhotoFragment extends Fragment {
                         }
                         else if(((MainActivity)getActivity()).getActionState().equals(MainActivity.VERIFYSTATE)) {
                             verifyFace();
-                            // Todo
-                            // verification Code not yet done
-                            Toast.makeText(getActivity(),"Verification Fail",Toast.LENGTH_SHORT).show();
-
                         }
                     } catch (FileNotFoundException e) {
                         Log.d(TAG, "File not found: " + e.getMessage());
@@ -256,42 +253,21 @@ public class PhotoFragment extends Fragment {
         // if true : return success, username, password, filepath
         // if false : return fail
 
-        final ProgressDialog dialog = ProgressDialog.show(getActivity(),
+        dialog = ProgressDialog.show(getActivity(),
                 "Verifying", "It might take a few seconds...",true);
-        new Thread(new Runnable(){
+        dialog.setCancelable(false);
+        dialog.show();
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                try{
-                    Thread.sleep(3000);
-                }
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-                finally{
+                if(dialog!=null) {
                     dialog.dismiss();
                 }
             }
-        }).start();
+        }, 2000);
 
         verifySender sender = new verifySender();
         sender.execute(((MainActivity) getActivity()).createInfoJSON());
-
-        /*if(valid.equals("success")) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "IMG_" + faceImgName + ".jpg");
-            ((MainActivity) getActivity()).setUser("ayou7995");
-            ((MainActivity) getActivity()).setPass("password");
-            ((MainActivity) getActivity()).setFile(mediaFile);
-
-            releaseCameraAndPreview();
-            ((MainActivity) getActivity()).setActionState(MainActivity.IDLESTATE);
-            ((MainActivity) getActivity()).setCurrentFragment(MainActivity.LOBBYFRAG);
-            ((MainActivity) getActivity()).replaceFragments(LobbyFragment.class);
-
-        }
-        else if (valid.equals("fail")){
-            Toast.makeText(getActivity(), "Not yet register ?",Toast.LENGTH_SHORT).show();
-        }*/
     }
 
     @Override
@@ -454,6 +430,14 @@ public class PhotoFragment extends Fragment {
                             e.printStackTrace();
                         }
 
+                    }
+
+                    Toast.makeText(getActivity(),"Hello, "+user+"!!",Toast.LENGTH_SHORT).show();
+
+                    if(dialog!=null) {dialog.dismiss();}
+                    if(((MainActivity) getActivity()).getLaunchBy().equals(MainActivity.SCREEENON)) {
+                        Log.i(TAG,tag+"Verification for screenOn success, closing App.");
+                        ((MainActivity)getActivity()).unlockDevice();
                     }
                     ((MainActivity) getActivity()).setUser(user);
                     ((MainActivity) getActivity()).setPass(password);

@@ -10,7 +10,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.example.ayou7995.facelock.R;
 
-public class LockscreenService extends Service {
+public class    LockscreenService extends Service {
 
     private BroadcastReceiver mReceiver;
 

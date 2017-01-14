@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +39,8 @@ public class PasswordVerificationFragment extends Fragment {
             new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_PICTURES), "MyCameraApp");
     private static File mediaFile = null;
+
+    private ProgressDialog dialog ;
 
     private EditText username_et;
     private EditText password_et;
@@ -104,22 +107,35 @@ public class PasswordVerificationFragment extends Fragment {
         // if true : return success, username, password, filepath
         // if false : return fail
 
-        final ProgressDialog dialog = ProgressDialog.show(getActivity(),
+        dialog = ProgressDialog.show(getActivity(),
                 "Verifying", "It might take a few seconds...",true);
-        new Thread(new Runnable(){
+        dialog.setCancelable(false);
+        dialog.show();
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                try{
-                    Thread.sleep(2000);
-                }
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-                finally{
+                if(dialog!=null) {
                     dialog.dismiss();
                 }
             }
-        }).start();
+        }, 2000);
+//        new Thread(new Runnable(){
+//            @Override
+//            public void run() {
+//                try{
+//                    Thread.sleep(2000);
+//                    dialog.dismiss();
+//                }
+//                catch(Exception e){
+//                    e.printStackTrace();
+//                }
+//                finally{
+//                    if(dialog!=null) {
+//                        dialog.dismiss();
+//                    }
+//                }
+//            }
+//        }).start();
 
         verifySender sender = new verifySender();
         sender.execute(((MainActivity) getActivity()).createInfoJSON());
@@ -208,6 +224,15 @@ public class PasswordVerificationFragment extends Fragment {
                             e.printStackTrace();
                         }
 
+                    }
+
+                    Toast.makeText(getActivity(),"Hello, "+user+"!!",Toast.LENGTH_SHORT).show();
+
+                    if(dialog!=null) {dialog.dismiss();}
+
+                    if(((MainActivity) getActivity()).getLaunchBy().equals(MainActivity.SCREEENON)) {
+                        Log.i(TAG,tag+"Verification for screenOn success, closing App.");
+                        ((MainActivity)getActivity()).unlockDevice();
                     }
                     ((MainActivity) getActivity()).setUser(user);
                     ((MainActivity) getActivity()).setPass(password);

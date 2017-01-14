@@ -2,6 +2,7 @@ package com.example.ayou7995.facelock;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,11 +13,15 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.example.ayou7995.facelock.utils.LockscreenService;
+import com.example.ayou7995.facelock.utils.LockscreenUtils;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
@@ -34,7 +39,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity
+        implements LockscreenUtils.OnLockStatusChangedListener{
 
     private final static String TAG = "Jonathan";
     private final static String tag = "[MainActivity] : ";
@@ -55,6 +61,10 @@ public class MainActivity extends FragmentActivity {
     public static String PASSWORDSTATE = "login_passwd";
     public static String UPDATESTATE = "update";
 
+    private String launchBy = "";
+    public static String APPLAUNCH = "applanch";
+    public static String SCREEENON = "screenon";
+
     // User Detail
     private String currentUser = "";
     private String currentPass = "";
@@ -70,6 +80,8 @@ public class MainActivity extends FragmentActivity {
     LobbyFragment lobbyFragment;
 
     Boolean profileExists = true;
+
+    private LockscreenUtils mLockscreenUtils;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -92,11 +104,56 @@ public class MainActivity extends FragmentActivity {
 
         currentDeviceID = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
 
-        // Todo
-        // Check if any profile exists
+        mLockscreenUtils = new LockscreenUtils();
+
+        launchBy = APPLAUNCH;
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        if(bundle!=null) {
+            Log.i(TAG,tag+"++++++++++++++++inside bundle+++++++++++");
+
+            if(bundle.containsKey("launchBy")) {
+                Log.i(TAG,tag+"++++++++++++++++inside containsKey+++++++++++");
+                launchBy = bundle.getString("launchBy", APPLAUNCH);
+                Log.i(TAG, tag + "====== launchBy : " + launchBy + " ======");
+            }
+        }
+
         currentActionState = CHECKEXIST;
         checkExistence sender = new checkExistence();
         sender.execute(createInfoJSON());
+
+        // unlock screen in case of app get killed by system
+        if (getIntent() != null && getIntent().hasExtra("kill")
+                && getIntent().getExtras().getInt("kill") == 1) {
+            // enableKeyguard();
+            unlockHomeButton();
+            Log.i(TAG,tag+"EnableKeyguard.");
+        } else {
+
+            try {
+                Log.i(TAG,tag+"inside try.");
+                // disable keyguard
+                // disableKeyguard();
+
+                // lock home button
+                lockHomeButton();
+
+                // start service for observing intents
+                startService(new Intent(this, LockscreenService.class));
+
+                // listen the events get fired during the call
+                MainActivity.StateListener phoneStateListener = new MainActivity.StateListener();
+                TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+                telephonyManager.listen(phoneStateListener,
+                        PhoneStateListener.LISTEN_CALL_STATE);
+
+            } catch (Exception e) {
+                Log.i(TAG,tag + e.toString());
+            }
+
+        }
 
         // Broadcast for detecting screen status
         bootBroadcastReceiver = new BootBroadcastReceiver();
@@ -115,6 +172,7 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onResume() {
+
         super.onResume();
     }
 
@@ -178,6 +236,10 @@ public class MainActivity extends FragmentActivity {
         currentFile = file;
     }
 
+    public String getLaunchBy() { return launchBy; }
+    public void setLaunchBy(String launch) { launchBy = launch; }
+
+
     public JSONObject createInfoJSON() {
         JSONObject sendInfo = new JSONObject();
         try {
@@ -222,7 +284,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onStop() {
         super.onStop();
-
+        unlockHomeButton();
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         AppIndex.AppIndexApi.end(client, getIndexApiAction());
@@ -296,19 +358,120 @@ public class MainActivity extends FragmentActivity {
 
                 profileExists = (boolean) returnInformation.get("exist");
 //                profileExists = false;
-                if (profileExists) {
-                    currentFragment = PHOTOFRAG;
-                    currentActionState = VERIFYSTATE;
-                    fragmentManager.beginTransaction().add(R.id.main_frameLayout, photoFragment).commit();
-                } else {
-                    currentFragment = LOBBYFRAG;
-                    currentActionState = IDLESTATE;
-                    fragmentManager.beginTransaction().add(R.id.main_frameLayout, lobbyFragment).commit();
+                while(getSupportFragmentManager().getFragments()!=null) {
+                    Log.i(TAG,tag+"Fragment pop back.");
+                    getSupportFragmentManager().popBackStack();
+                }
+                if(!isFinishing()) {
+                    if (profileExists) {
+                        currentFragment = PHOTOFRAG;
+                        currentActionState = VERIFYSTATE;
+                        fragmentManager.beginTransaction().add(R.id.main_frameLayout, photoFragment).commitAllowingStateLoss();
+                    } else {
+                        currentFragment = LOBBYFRAG;
+                        currentActionState = IDLESTATE;
+                        fragmentManager.beginTransaction().add(R.id.main_frameLayout, lobbyFragment).commitAllowingStateLoss();
+                    }
                 }
 
             } catch (JSONException e) {
                 System.out.println("unable to catch response\n");
             }
         }
+    }
+
+    // Handle events of calls and unlock screen if necessary
+    private class StateListener extends PhoneStateListener {
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+
+            super.onCallStateChanged(state, incomingNumber);
+            switch (state) {
+                case TelephonyManager.CALL_STATE_RINGING:
+                    unlockHomeButton();
+                    break;
+                case TelephonyManager.CALL_STATE_OFFHOOK:
+                    break;
+                case TelephonyManager.CALL_STATE_IDLE:
+                    break;
+            }
+        }
+    };
+
+    // Don't finish Activity on Back press
+    // @Override
+    // public void onBackPressed() {return;}
+
+
+    // Handle button clicks
+//    @Override
+//    public boolean onKeyDown(int keyCode, android.view.KeyEvent event) {
+//
+//        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+//                || (keyCode == KeyEvent.KEYCODE_POWER)
+//                || (keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+//                || (keyCode == KeyEvent.KEYCODE_CAMERA)) {
+//            return true;
+//        }
+//        if ((keyCode == KeyEvent.KEYCODE_HOME)) {
+//
+//            return true;
+//        }
+//
+//        return false;
+//
+//    }
+
+    // handle the key press events here itself
+//    public boolean dispatchKeyEvent(KeyEvent event) {
+//        if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP
+//                || (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN)
+//                || (event.getKeyCode() == KeyEvent.KEYCODE_POWER)) {
+//            return false;
+//        }
+//        if ((event.getKeyCode() == KeyEvent.KEYCODE_HOME)) {
+//
+//            return true;
+//        }
+//        return false;
+//    }
+
+    // Lock home button
+    public void lockHomeButton() {
+        mLockscreenUtils.lock(MainActivity.this);
+    }
+
+    // Unlock home button and wait for its callback
+    public void unlockHomeButton() {
+        mLockscreenUtils.unlock();
+    }
+
+    // Simply unlock device when home button is successfully unlocked
+    @Override
+    public void onLockStatusChanged(boolean isLocked) {
+        if (!isLocked) {
+            unlockDevice();
+        }
+    }
+
+//    @SuppressWarnings("deprecation")
+//    private void disableKeyguard() {
+//        KeyguardManager mKM = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+//        KeyguardManager.KeyguardLock mKL = mKM.newKeyguardLock("IN");
+//        mKL.disableKeyguard();
+//    }
+//
+//    @SuppressWarnings("deprecation")
+//    private void enableKeyguard() {
+//        KeyguardManager mKM = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+//        KeyguardManager.KeyguardLock mKL = mKM.newKeyguardLock("IN");
+//        mKL.reenableKeyguard();
+//    }
+
+    //Simply unlock device by finishing the activity
+    public void unlockDevice()
+    {
+        // android.os.Process.killProcess(android.os.Process.myPid());
+        finish();
     }
 }
