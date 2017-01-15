@@ -7,18 +7,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.res.ResourcesCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 
 import com.example.ayou7995.facelock.utils.LockscreenService;
 import com.example.ayou7995.facelock.utils.LockscreenUtils;
@@ -82,6 +88,20 @@ public class MainActivity extends FragmentActivity
     Boolean profileExists = true;
 
     private LockscreenUtils mLockscreenUtils;
+
+    // Background
+    private static final int[] BACKGROUND_COLORS = {
+            R.color.blue_dark,
+            R.color.green_dark,
+            R.color.red_dark
+    };
+    private static final int[] BACKGROUND_PATTERNS = {
+            R.drawable.hexagons_tile
+            // R.drawable.background_pattern_1,
+            // R.drawable.background_pattern_2
+    };
+    private static int currentColor = 0;
+    private static int currentPattern = 0;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -239,6 +259,8 @@ public class MainActivity extends FragmentActivity
     public String getLaunchBy() { return launchBy; }
     public void setLaunchBy(String launch) { launchBy = launch; }
 
+    public int getCurrentColor() {return currentColor;}
+    public void setCurrentColor(int num) { currentColor=num;}
 
     public JSONObject createInfoJSON() {
         JSONObject sendInfo = new JSONObject();
@@ -474,4 +496,20 @@ public class MainActivity extends FragmentActivity
         // android.os.Process.killProcess(android.os.Process.myPid());
         finish();
     }
+
+    // Background
+    public void setBackgroundTheme(LinearLayout rlActivity) {
+        LayerDrawable ldTheme = (LayerDrawable) rlActivity.getBackground();
+        GradientDrawable shape = (GradientDrawable)
+                ldTheme.findDrawableByLayerId(R.id.shape_color);
+        shape.setColor(getResources().getColor(BACKGROUND_COLORS[currentColor]));
+        BitmapDrawable bmp = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(),
+                BACKGROUND_PATTERNS[currentPattern], null);
+        if (bmp != null) {
+            bmp.setAntiAlias(true);
+            bmp.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+        }
+        ldTheme.setDrawableByLayerId(R.id.shape_pattern, bmp);
+    }
+
 }

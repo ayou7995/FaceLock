@@ -5,5 +5,14 @@
     <color name="colorAccent">#FF4081</color>
     <color name="yellow">#FFFF33</color>
     <color name="black">#000000</color>
+    <color name="pink">#FF0088</color>
     <color name="selector_txt_btn_unlock">#0044BB</color>
+    <!--<color name="background_color">#FFFF77</color>-->
+    <color name="BackgroundtWhiteColor">#ffffff</color>
+    <color name="blue_dark">#ff103146</color>
+    <color name="red_dark">#ff520704</color>
+    <color name="green_dark">#ff202605</color>
+    <!--<color name="blue_dark">#ff205268</color>-->
+    <!--<color name="red_dark">#ff630915</color>-->
+    <!--<color name="green_dark">#ff3a4916</color>-->
 </resources>

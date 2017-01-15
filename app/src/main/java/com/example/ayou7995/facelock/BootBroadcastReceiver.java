@@ -20,7 +20,7 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
             if (action.equals(Intent.ACTION_SCREEN_ON))
             {
                 // Screen is on but not unlocked (if any locking mechanism present)
-                Log.i(Tag, "Action screen on.");
+                // Log.i(Tag, "Action screen on.");
                 Toast.makeText(context,"Action screen on.",Toast.LENGTH_SHORT).show();
                 // Launch app when screen is on.
                 /*
@@ -33,13 +33,13 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
             else if (action.equals(Intent.ACTION_SCREEN_OFF))
             {
                 // Screen is locked
-                Log.i(Tag, "Action screen off.");
+                // Log.i(Tag, "Action screen off.");
                 Toast.makeText(context,"Action screen off.",Toast.LENGTH_SHORT).show();
             }
             else if (action.equals(Intent.ACTION_USER_PRESENT))
             {
                 // Screen is unlocked
-                Log.i(Tag, "Action user present.");
+                // Log.i(Tag, "Action user present.");
                 Toast.makeText(context,"Action user present.",Toast.LENGTH_SHORT).show();
             }
         }

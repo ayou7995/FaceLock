@@ -264,7 +264,7 @@ public class PhotoFragment extends Fragment {
                     dialog.dismiss();
                 }
             }
-        }, 2000);
+        }, 4000);
 
         verifySender sender = new verifySender();
         sender.execute(((MainActivity) getActivity()).createInfoJSON());
@@ -294,6 +294,9 @@ public class PhotoFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        if(dialog!=null){
+            dialog.dismiss();
+        }
         releaseCameraAndPreview();
     }
 

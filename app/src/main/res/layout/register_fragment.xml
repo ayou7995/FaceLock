@@ -8,20 +8,21 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/background_activity">
 
     <ImageView
         android:id="@+id/face_image"
         android:layout_width="200dp"
         android:layout_height="0dp"
-        android:layout_weight="5"
-        android:layout_marginTop="40dp"
+        android:layout_weight="6"
+        android:layout_marginTop="30dp"
         android:layout_gravity="center"
         android:src="@drawable/ic_android_black_24dp"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="7"
+        android:layout_weight="5"
         android:orientation="vertical"
         android:layout_marginTop="80dp"
         android:layout_marginStart="10dp"
@@ -32,22 +33,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="8dp"
+            android:theme="@style/EditTextHint">
             <EditText android:id="@+id/input_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
+                android:textColor="@color/BackgroundtWhiteColor"
                 android:hint="Name" />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="8dp"
+            android:theme="@style/EditTextHint">
             <EditText android:id="@+id/input_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
+                android:textColor="@color/BackgroundtWhiteColor"
                 android:hint="Password" />
         </android.support.design.widget.TextInputLayout>
 
@@ -62,12 +67,22 @@
                     android:id="@+id/recapture_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/rephoto"/>
+                    android:text="@string/rephoto"
+                    android:background="@drawable/buttonshape"
+                    android:shadowColor="#A8A8A8"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="5"/>
                 <Button
                     android:id="@+id/register_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/register"/>
+                    android:text="@string/register"
+                    android:background="@drawable/buttonshape"
+                    android:shadowColor="#A8A8A8"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="5"/>
             </TableRow>
         </TableLayout>
     </LinearLayout>

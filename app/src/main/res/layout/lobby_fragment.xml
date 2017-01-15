@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/lobby_ll"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/background_activity">
 
     <ImageView
         android:id="@+id/App_Icon"
@@ -9,7 +12,7 @@
         android:layout_height="200dp"
         android:layout_gravity="center"
         android:layout_marginTop="60dp"
-        android:src="@drawable/ic_android_black_24dp"
+        android:src="@drawable/face_scan"
         android:contentDescription="@string/app_icon" />
     <Button
         android:id="@+id/register_profile_button"
@@ -17,12 +20,22 @@
         android:layout_width="200dp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:text="@string/register_profile"/>
+        android:text="@string/register_profile"
+        android:background="@drawable/buttonshape"
+        android:shadowColor="#A8A8A8"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="5"/>
     <Button
         android:id="@+id/update_profile_button"
         android:layout_height="wrap_content"
         android:layout_width="200dp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:text="@string/update_profile" />
+        android:text="@string/update_profile"
+        android:background="@drawable/buttonshape"
+        android:shadowColor="#A8A8A8"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="5"/>
 </LinearLayout>

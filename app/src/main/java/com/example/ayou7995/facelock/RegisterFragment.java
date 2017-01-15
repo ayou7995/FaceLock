@@ -74,7 +74,6 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 register();
-                Toast.makeText(getActivity(),"Verification Fail",Toast.LENGTH_SHORT).show();
                 ((MainActivity)getActivity()).setActionState(MainActivity.IDLESTATE);
                 ((MainActivity)getActivity()).setCurrentFragment(MainActivity.LOBBYFRAG);
                 ((MainActivity)getActivity()).replaceFragments(LobbyFragment.class);

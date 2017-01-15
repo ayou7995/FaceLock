@@ -80,6 +80,14 @@ public class PasswordVerificationFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(dialog!=null){
+            dialog.dismiss();
+        }
+    }
+
     private boolean checkEmpty() {
 
         String username = username_et.getText().toString();
@@ -118,7 +126,7 @@ public class PasswordVerificationFragment extends Fragment {
                     dialog.dismiss();
                 }
             }
-        }, 2000);
+        }, 3000);
 //        new Thread(new Runnable(){
 //            @Override
 //            public void run() {
