@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
@@ -15,8 +16,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -25,6 +28,7 @@ import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.Manifest;
 
 import com.example.ayou7995.facelock.utils.LockscreenService;
 import com.example.ayou7995.facelock.utils.LockscreenUtils;
@@ -50,6 +54,7 @@ public class MainActivity extends FragmentActivity
 
     private final static String TAG = "Jonathan";
     private final static String tag = "[MainActivity] : ";
+    private static final int REQUEST_READ_PHONE_STATE = 0;
 
     // Fragment Control
     private int currentFragment = 0;
@@ -122,7 +127,37 @@ public class MainActivity extends FragmentActivity
         lobbyFragment = new LobbyFragment();
         photoFragment = new PhotoFragment();
 
-        currentDeviceID = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+
+
+        int permission_read_phone_state = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.READ_PHONE_STATE);
+        int permission_camera = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA);
+        int permission_write_external_storage = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int permission_receive_boot_completed = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.RECEIVE_BOOT_COMPLETED);
+        int permission_disable_keyguard = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.DISABLE_KEYGUARD);
+
+        if (permission_camera != PackageManager.PERMISSION_GRANTED ||
+                permission_disable_keyguard != PackageManager.PERMISSION_GRANTED ||
+                permission_read_phone_state != PackageManager.PERMISSION_GRANTED ||
+                permission_receive_boot_completed != PackageManager.PERMISSION_GRANTED ||
+                permission_write_external_storage != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[] {Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                    Manifest.permission.DISABLE_KEYGUARD},
+                    REQUEST_READ_PHONE_STATE
+            );
+        }
+        else{
+            currentDeviceID = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+        }
 
         mLockscreenUtils = new LockscreenUtils();
 
@@ -510,6 +545,21 @@ public class MainActivity extends FragmentActivity
             bmp.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
         }
         ldTheme.setDrawableByLayerId(R.id.shape_pattern, bmp);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch(requestCode) {
+            case REQUEST_READ_PHONE_STATE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //取得權限，進行檔案存取
+                    currentDeviceID = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+                } else {
+                    finish();
+                }
+                return;
+        }
     }
 
 }
